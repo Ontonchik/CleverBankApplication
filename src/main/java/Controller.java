@@ -60,12 +60,6 @@ public class Controller {
         }
     }
 
-    public void cleverBankTransfer(Scanner scanner){
-        BigDecimal value = getOperationValue(scanner);
-        String transferUsername = getCleverBankTransferAddress(scanner);
-        dao.thisBankTransfer(currentUser, value, transferUsername);
-    }
-
     public void withdrawMoney(Scanner scanner){
         BigDecimal value = getOperationValue(scanner);
         dao.withdraw(currentUser, value);
@@ -76,13 +70,36 @@ public class Controller {
         dao.add(currentUser, value);
     }
 
+    public void cleverBankTransfer(Scanner scanner){
+        BigDecimal value = getOperationValue(scanner);
+        String transferUsername = getCleverBankTransfer(scanner);
+        String thisBank = "Clever-bank";
+        dao.Transfer(currentUser, value, thisBank , transferUsername);
+    }
+
+    public void otherBankTransfer(Scanner scanner){
+        BigDecimal value = getOperationValue(scanner);
+        String bankName = getOtherBankName(scanner);
+        String transferUsername = getOtherBankTransfer(scanner);
+        dao.Transfer(currentUser, value, bankName, transferUsername);
+    }
+
     public BigDecimal getOperationValue(Scanner scanner){
         view.printMoneyValue();
         return scanner.nextBigDecimal();
     }
 
-    public String getCleverBankTransferAddress(Scanner scanner){
+    public String getCleverBankTransfer(Scanner scanner){
         view.printCleverBankTransfer();
+        return scanner.nextLine();
+    }
+
+    public String getOtherBankName(Scanner scanner){
+        view.printOtherBankTransfer();
+        return scanner.nextLine();
+    }
+
+    public String getOtherBankTransfer(Scanner scanner){
         return scanner.nextLine();
     }
 }

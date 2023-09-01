@@ -59,21 +59,19 @@ public class Dao {
         }
     }
 
-    public void thisBankTransfer(User user, BigDecimal value, String address){
+    public void Transfer(User user, BigDecimal value, String bankName, String address){
         try {
             PreparedStatement statement = connection.prepareStatement("Update newtable set cash = cash" +
                     " - ?  where username = ? and bank = Clever-bank, cash = cash + ?  where username = ? " +
-                    "and bank = Clever-bank");
+                    "and bank = ?");
             statement.setBigDecimal(1, value);
             statement.setString(2, user.getUsername());
             statement.setBigDecimal(3, value);
             statement.setString(4, address);
+            statement.setString(5, bankName);
             statement.executeQuery();
         }catch (SQLException e){
             sqlExceptionHandler();
         }
     }
-
-
-
 }
