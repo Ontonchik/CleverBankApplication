@@ -42,7 +42,33 @@ public class Dao {
             PreparedStatement statement = connection.prepareStatement("Update newtable set cash = cash - ?  where username = ? and bank = Clever-bank;");
             statement.setBigDecimal(1, value);
             statement.setString(2, user.getUsername());
-            ResultSet resultSet = statement.executeQuery();
+            statement.executeQuery();
+        }catch (SQLException e){
+            sqlExceptionHandler();
+        }
+    }
+
+    public void add(User user, BigDecimal value){
+        try {
+            PreparedStatement statement = connection.prepareStatement("Update newtable set cash = cash + ?  where username = ? and bank = Clever-bank;");
+            statement.setBigDecimal(1, value);
+            statement.setString(2, user.getUsername());
+            statement.executeQuery();
+        }catch (SQLException e){
+            sqlExceptionHandler();
+        }
+    }
+
+    public void thisBankTransfer(User user, BigDecimal value, String address){
+        try {
+            PreparedStatement statement = connection.prepareStatement("Update newtable set cash = cash" +
+                    " - ?  where username = ? and bank = Clever-bank, cash = cash + ?  where username = ? " +
+                    "and bank = Clever-bank");
+            statement.setBigDecimal(1, value);
+            statement.setString(2, user.getUsername());
+            statement.setBigDecimal(3, value);
+            statement.setString(4, address);
+            statement.executeQuery();
         }catch (SQLException e){
             sqlExceptionHandler();
         }

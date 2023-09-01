@@ -53,15 +53,36 @@ public class Controller {
         switch (option){
             case 1:
                 withdrawMoney(scanner);
+            case 2:
+                addMoney(scanner);
+            case 3:
+                cleverBankTransfer(scanner);
         }
+    }
+
+    public void cleverBankTransfer(Scanner scanner){
+        BigDecimal value = getOperationValue(scanner);
+        String transferUsername = getCleverBankTransferAddress(scanner);
+        dao.thisBankTransfer(currentUser, value, transferUsername);
     }
 
     public void withdrawMoney(Scanner scanner){
         BigDecimal value = getOperationValue(scanner);
+        dao.withdraw(currentUser, value);
+    }
+
+    public void addMoney(Scanner scanner){
+        BigDecimal value = getOperationValue(scanner);
+        dao.add(currentUser, value);
     }
 
     public BigDecimal getOperationValue(Scanner scanner){
         view.printMoneyValue();
         return scanner.nextBigDecimal();
+    }
+
+    public String getCleverBankTransferAddress(Scanner scanner){
+        view.printCleverBankTransfer();
+        return scanner.nextLine();
     }
 }

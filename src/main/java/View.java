@@ -20,4 +20,12 @@ public class View {
     public void printPasswordException(){
         System.out.println("Длина пароля не должна быть больше 40-ка символов");
     }
+
+    public void printCleverBankTransfer(){
+        System.out.println("Введите имя пользователя Clever-bank, которому хотите перевести деньги");
+    }
+
+    public void printOtherBankTransfer(){
+        System.out.println("Введите название банка и имя пользователя этого банка, которому хотите перевести деньги");
+    }
 }
