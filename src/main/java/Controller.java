@@ -1,3 +1,4 @@
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.concurrent.locks.Condition;
@@ -44,5 +45,23 @@ public class Controller {
         currentUser.setUsername(username);
         currentUser.setPassword(password);
         Arrays.fill(password, ' ');
+    }
+
+    public void Options(Scanner scanner){
+        view.printSwitch();
+        int option = scanner.nextInt();
+        switch (option){
+            case 1:
+                withdrawMoney(scanner);
+        }
+    }
+
+    public void withdrawMoney(Scanner scanner){
+        BigDecimal value = getOperationValue(scanner);
+    }
+
+    public BigDecimal getOperationValue(Scanner scanner){
+        view.printMoneyValue();
+        return scanner.nextBigDecimal();
     }
 }

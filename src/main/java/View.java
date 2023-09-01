@@ -13,6 +13,10 @@ public class View {
         System.out.println("4 - Перевод средств клиенту другого банка");
     }
 
+    public void printMoneyValue(){
+        System.out.println("Введите сумму операции");
+    }
+
     public void printPasswordException(){
         System.out.println("Длина пароля не должна быть больше 40-ка символов");
     }

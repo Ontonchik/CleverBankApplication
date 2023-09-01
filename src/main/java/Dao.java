@@ -1,3 +1,4 @@
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.Arrays;
 
@@ -5,7 +6,7 @@ public class Dao {
     Connection connection;
 
     public void sqlExceptionHandler(){
-        System.out.println("Неполадки в работе базы данных");
+        System.out.println("Ошибка при обращении в базу данных");
     }
 
     public void init() {
@@ -35,6 +36,18 @@ public class Dao {
             return false;
         }
     }
+
+    public void withdraw(User user, BigDecimal value){
+        try {
+            PreparedStatement statement = connection.prepareStatement("Update newtable set cash = cash - ?  where username = ? and bank = Clever-bank;");
+            statement.setBigDecimal(1, value);
+            statement.setString(2, user.getUsername());
+            ResultSet resultSet = statement.executeQuery();
+        }catch (SQLException e){
+            sqlExceptionHandler();
+        }
+    }
+
 
 
 }
