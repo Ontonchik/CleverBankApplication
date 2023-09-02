@@ -75,13 +75,11 @@ public class Controller {
 
     public void cleverBankTransfer(){
         BigDecimal value = getOperationValue();
-        if(value != null) {
-            Account transferUserAccount = getCleverBankTransfer();
-            String thisBank = "Clever-bank";
-            transferUserAccount.setBank(new Bank(thisBank));
-            Transaction transaction = new Transaction(currentUserAccount, transferUserAccount, value);
-            dao.Transfer(transaction);
-        }
+        Account transferUserAccount = getCleverBankTransfer();
+        String thisBank = "Clever-bank";
+        transferUserAccount.setBank(new Bank(thisBank));
+        Transaction transaction = new Transaction(currentUserAccount, transferUserAccount, value);
+        dao.Transfer(transaction);
     }
 
     public void otherBankTransfer(){
@@ -96,10 +94,12 @@ public class Controller {
     public BigDecimal getOperationValue(){
         view.printMoneyValue();
         BigDecimal value = scanner.nextBigDecimal();
-        if(value.compareTo(new BigDecimal(0)) > 0) {
-            return value;
+        while (value.compareTo(new BigDecimal(0)) < 0) {
+            throwMoneyException();
+            view.printMoneyValue();
+            value = scanner.nextBigDecimal();
         }
-        return null;
+        return value;
     }
 
     public Account getCleverBankTransfer(){
@@ -129,5 +129,7 @@ public class Controller {
         lock.unlock();
     }
 
-
+    public void throwMoneyException(){
+        view.printMoneyException();
+    }
 }
