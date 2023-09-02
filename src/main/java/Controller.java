@@ -6,10 +6,12 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Controller {
+    Scanner scanner;
+    boolean flag;
     Lock lock = new ReentrantLock();
     Condition condition = lock.newCondition();
     int MAX_PASSWORD_LENGTH = 40;
-    User currentUser = new User();
+    Account currentUserAccount = new Account();
     View view;
     Dao dao;
 
@@ -17,11 +19,11 @@ public class Controller {
         view.printHello();
     }
 
-    public String getUsername(Scanner scanner){
+    public String getUsername(){
         return scanner.nextLine();
     }
 
-    public char[] getPassword(Scanner scanner) {
+    public char[] getPassword() {
         char[] password = new char[MAX_PASSWORD_LENGTH];
         int i = 0;
         try {
@@ -35,71 +37,97 @@ public class Controller {
         return password;
     }
 
-    public void checkUser(Scanner scanner){
-        String username = getUsername(scanner);
-        char[] password = getPassword(scanner);
-        if(!dao.checkAccess(username, password)){
+    public void checkUser(){
+        String username = getUsername();
+        char[] password = getPassword();
+        if(!dao.checkAccess(currentUserAccount, username, password)){
             Arrays.fill(password, ' ');
             return;
         }
-        currentUser.setUsername(username);
-        currentUser.setPassword(password);
+        currentUserAccount.setUser(new User(username));
         Arrays.fill(password, ' ');
     }
 
-    public void Options(Scanner scanner){
+    public void Options(){
         view.printSwitch();
         int option = scanner.nextInt();
         switch (option){
             case 1:
-                withdrawMoney(scanner);
+                withdrawMoney();
             case 2:
-                addMoney(scanner);
+                addMoney();
             case 3:
-                cleverBankTransfer(scanner);
+                cleverBankTransfer();
+            case 4:
+                otherBankTransfer();
         }
     }
 
-    public void withdrawMoney(Scanner scanner){
-        BigDecimal value = getOperationValue(scanner);
-        dao.withdraw(currentUser, value);
+    public void withdrawMoney(){
+        BigDecimal value = getOperationValue();
+        dao.withdraw(currentUserAccount, value);
     }
 
-    public void addMoney(Scanner scanner){
-        BigDecimal value = getOperationValue(scanner);
-        dao.add(currentUser, value);
+    public void addMoney(){
+        BigDecimal value = getOperationValue();
+        dao.add(currentUserAccount, value);
     }
 
-    public void cleverBankTransfer(Scanner scanner){
-        BigDecimal value = getOperationValue(scanner);
-        String transferUsername = getCleverBankTransfer(scanner);
-        String thisBank = "Clever-bank";
-        dao.Transfer(currentUser, value, thisBank , transferUsername);
+    public void cleverBankTransfer(){
+        BigDecimal value = getOperationValue();
+        if(value != null) {
+            Account transferUserAccount = getCleverBankTransfer();
+            String thisBank = "Clever-bank";
+            transferUserAccount.setBank(new Bank(thisBank));
+            Transaction transaction = new Transaction(currentUserAccount, transferUserAccount, value);
+            dao.Transfer(transaction);
+        }
     }
 
-    public void otherBankTransfer(Scanner scanner){
-        BigDecimal value = getOperationValue(scanner);
-        String bankName = getOtherBankName(scanner);
-        String transferUsername = getOtherBankTransfer(scanner);
-        dao.Transfer(currentUser, value, bankName, transferUsername);
+    public void otherBankTransfer(){
+        BigDecimal value = getOperationValue();
+        String bankName = getOtherBankName();
+        Account transferUserAccount = getOtherBankTransfer();
+        transferUserAccount.setBank(new Bank(bankName));
+        Transaction transaction = new Transaction(currentUserAccount, transferUserAccount, value);
+        dao.Transfer(transaction);
     }
 
-    public BigDecimal getOperationValue(Scanner scanner){
+    public BigDecimal getOperationValue(){
         view.printMoneyValue();
-        return scanner.nextBigDecimal();
+        BigDecimal value = scanner.nextBigDecimal();
+        if(value.compareTo(new BigDecimal(0)) > 0) {
+            return value;
+        }
+        return null;
     }
 
-    public String getCleverBankTransfer(Scanner scanner){
+    public Account getCleverBankTransfer(){
         view.printCleverBankTransfer();
-        return scanner.nextLine();
+        int transferId = scanner.nextInt();
+        return new Account(transferId);
     }
 
-    public String getOtherBankName(Scanner scanner){
+    public String getOtherBankName(){
         view.printOtherBankTransfer();
         return scanner.nextLine();
     }
 
-    public String getOtherBankTransfer(Scanner scanner){
-        return scanner.nextLine();
+    public Account getOtherBankTransfer(){
+        return new Account(scanner.nextInt());
     }
+
+    public void monthCheck() throws InterruptedException {
+        lock.lock();
+        flag = true;
+        while(flag){
+            condition.wait(30000);
+            if(flag){
+
+            }
+        }
+        lock.unlock();
+    }
+
+
 }
