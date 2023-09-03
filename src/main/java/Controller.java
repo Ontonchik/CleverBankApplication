@@ -1,14 +1,20 @@
+import org.yaml.snakeyaml.Yaml;
+
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Controller implements Runnable {
-    Scanner scanner;
+    Yaml yaml = new Yaml();
+    Scanner scanner = new Scanner(System.in);
     boolean flag;
     Lock lock = new ReentrantLock();
     Condition condition = lock.newCondition();
@@ -50,7 +56,7 @@ public class Controller implements Runnable {
         Arrays.fill(password, ' ');
     }
 
-    public void options(){
+    public void menu(){
         view.printSwitch();
         int option = scanner.nextInt();
         Transaction transaction = new Transaction(null, null, null, null);
@@ -65,9 +71,14 @@ public class Controller implements Runnable {
                 transaction = otherBankTransfer();
             default:
                 printNoSuchOption();
-                options();
+                menu();
         }
-        printCheck(transaction);
+        try {
+            HashMap<String, Object> map = yaml.load(new FileInputStream("src/main/resources/config.yml"));
+            printCheck(transaction, map);
+        } catch (IOException e){
+            System.out.println(e.getMessage());
+        }
     }
 
     public Transaction withdrawMoney(){
@@ -128,7 +139,7 @@ public class Controller implements Runnable {
         return new Account(scanner.nextInt());
     }
 
-    public void monthCheck(){
+    public void monthCheck(BigDecimal val){
         try {
             lock.lock();
             flag = true;
@@ -137,13 +148,13 @@ public class Controller implements Runnable {
                 if(flag){
                     if(LocalDate.now().getDayOfMonth() == LocalDate.now().lengthOfMonth() &&
                             LocalTime.now().getHour() == 23 && LocalTime.now().getMinute() == 30){
-                        dao.monthAdd();
+                        dao.monthAdd(val);
                     }
                 }
             }
             lock.unlock();
         }catch (InterruptedException e){
-
+            System.out.println(e.getMessage());
         }
     }
 
@@ -151,22 +162,32 @@ public class Controller implements Runnable {
         view.printMoneyException();
     }
 
-    public void printCheck(Transaction transaction){
-        view.printCheck(transaction);
+    public void printCheck(Transaction transaction, HashMap<String, Object> map){
+        view.printCheck(transaction, map, yaml);
     }
 
     public void printNoSuchOption(){
         view.printNoSuchOption();
     }
 
-    public void start(){
+    public void begin(){
         view = new View();
+        dao = new Dao(lock);
         printHello();
-        //checkUser();
+        checkUser();
+        menu();
+        dao.destroy();
     }
 
     @Override
     public void run() {
-        monthCheck();
+        try {
+            HashMap<String, Object> map = yaml.load(new FileInputStream("src/main/resources/config.yml"));
+            BigDecimal val = new BigDecimal(map.get("monthValue").toString());
+
+            monthCheck(val);
+        }catch (IOException e){
+            System.out.println(e.getMessage());
+        }
     }
 }

@@ -1,9 +1,17 @@
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.Arrays;
+import java.util.concurrent.locks.Lock;
 
 public class Dao {
+
     Connection connection;
+    Lock lock;
+
+    Dao(Lock l){
+        lock = l;
+        init();
+    }
 
     public void printNoMoneyException(){
         System.out.println("Недостаточно средств на счете для проведения операции");
@@ -31,6 +39,7 @@ public class Dao {
     }
 
     public boolean checkAccess(Account currentUserAccount, String username, char[] password) {
+        lock.lock();
         try {
             PreparedStatement statement = connection.prepareStatement("Select password, account_id from newtable where username = ?;");
             statement.setString(1, username);
@@ -43,10 +52,14 @@ public class Dao {
         } catch (SQLException e){
             sqlExceptionHandler(e);
         }
+        finally {
+            lock.unlock();
+        }
         return false;
     }
 
     public void withdraw(Account currentUserAccount, BigDecimal value){
+        lock.lock();
         try {
             if(enoughMoneyCheck(currentUserAccount, value)) {
                 PreparedStatement statement = connection.prepareStatement("Update newtable set cash = cash - ?  where account_id = ? and bank = Clever-bank;");
@@ -60,9 +73,13 @@ public class Dao {
         }catch (SQLException e){
             sqlExceptionHandler(e);
         }
+        finally {
+            lock.unlock();
+        }
     }
 
     public void add(Account currentUserAccount, BigDecimal value){
+        lock.lock();
         try {
             PreparedStatement statement = connection.prepareStatement("Update newtable set cash = cash + ?  where account_id = ? and bank = Clever-bank;");
             statement.setBigDecimal(1, value);
@@ -71,9 +88,13 @@ public class Dao {
         }catch (SQLException e){
             sqlExceptionHandler(e);
         }
+        finally {
+            lock.unlock();
+        }
     }
 
     public void Transfer(Transaction transaction){
+        lock.lock();
         try {
             if(isValidTransaction(transaction)) {
                 PreparedStatement statement = connection.prepareStatement("Update newtable set cash = cash" +
@@ -92,33 +113,46 @@ public class Dao {
         }catch (SQLException e){
             sqlExceptionHandler(e);
         }
+        finally {
+            lock.unlock();
+        }
     }
 
     public boolean enoughMoneyCheck(Account currentUserAccount, BigDecimal value) throws SQLException {
+        lock.lock();
         connection.setAutoCommit(false);
         PreparedStatement statement = connection.prepareStatement("Select cash from newtable where account_id = ?;");
         statement.setInt(1, currentUserAccount.getAccountId());
         ResultSet resultSet = statement.executeQuery();
+        lock.unlock();
         return resultSet.next() && resultSet.getBigDecimal("cash").compareTo(value) >= 0;
     }
 
     public boolean isValidTransaction(Transaction transaction) throws SQLException {
+        lock.lock();
         if(enoughMoneyCheck(transaction.getCurrentUserAccount(), transaction.getValue())){
             PreparedStatement statement = connection.prepareStatement("Select * from newtable where account_id = ? and bank = ?;");
             statement.setInt(1, transaction.getTransferUserAccount().getAccountId());
             statement.setString(1, transaction.getTransferUserAccount().getBank().getName());
             ResultSet resultSet = statement.executeQuery();
+            lock.unlock();
             return resultSet.next() && resultSet.getString("bank").equals(transaction.getTransferUserAccount().bank.getName());
         }
+        lock.unlock();
         return false;
     }
 
-    public void monthAdd(){
+    public void monthAdd(BigDecimal monthValue){
+        lock.lock();
         try {
-            PreparedStatement statement = connection.prepareStatement("Update newtable set cash = cash * 1.01  where bank = Clever-bank;");
+            PreparedStatement statement = connection.prepareStatement("Update newtable set cash = cash * ?  where bank = Clever-bank;");
+            statement.setBigDecimal(1, monthValue);
             statement.executeQuery();
         }catch (SQLException e){
             sqlExceptionHandler(e);
+        }
+        finally {
+            lock.unlock();
         }
     }
 }

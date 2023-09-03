@@ -1,18 +1,17 @@
+import org.yaml.snakeyaml.Yaml;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
+import java.util.HashMap;
+
 
 public class View {
-    public int checkNumber;
 
-    View(){
-        checkNumber = 0;
-    }
+    View(){}
 
     public void printHello(){
         System.out.println("Добро пожаловать в приложение Clever-Bank.");
@@ -52,10 +51,13 @@ public class View {
         System.out.println("Такой опции нет, введите число от 1 до 4");
     }
 
-    public void printCheck(Transaction transaction){
+    public void printCheck(Transaction transaction, HashMap<String, Object> map, Yaml yaml){
         try {
-            checkNumber += 1;
             PrintWriter wr = new PrintWriter(new FileWriter("output.txt"));
+            PrintWriter writer = new PrintWriter("src/main/resources/config.yml");
+            int checkNumber = Integer.parseInt(map.get("checkNumber").toString());
+            map.replace("checkNumber", checkNumber + 1);
+            yaml.dump(map, writer);
             wr.println("------------------------------------");
             wr.println("|          Банковский чек          |");
             wr.println("| Чек:                           " + checkNumber + " |");
