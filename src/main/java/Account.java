@@ -16,8 +16,8 @@ public class Account {
         accountId = account_Id;
     }
 
-    public Account(int account_Id, Bank thisBank){
+    public Account(int account_Id, Bank accountBank){
         accountId = account_Id;
-        bank = thisBank;
+        bank = accountBank;
     }
 }

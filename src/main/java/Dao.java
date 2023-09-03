@@ -112,4 +112,13 @@ public class Dao {
         }
         return false;
     }
+
+    public void monthAdd(){
+        try {
+            PreparedStatement statement = connection.prepareStatement("Update newtable set cash = cash * 1.01  where bank = Clever-bank;");
+            statement.executeQuery();
+        }catch (SQLException e){
+            sqlExceptionHandler(e);
+        }
+    }
 }

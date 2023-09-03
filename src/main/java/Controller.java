@@ -1,11 +1,13 @@
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class Controller {
+public class Controller implements Runnable {
     Scanner scanner;
     boolean flag;
     Lock lock = new ReentrantLock();
@@ -48,47 +50,56 @@ public class Controller {
         Arrays.fill(password, ' ');
     }
 
-    public void Options(){
+    public void options(){
         view.printSwitch();
         int option = scanner.nextInt();
+        Transaction transaction = new Transaction(null, null, null, null);
         switch (option){
             case 1:
-                withdrawMoney();
+                transaction = withdrawMoney();
             case 2:
-                addMoney();
+                transaction = addMoney();
             case 3:
-                cleverBankTransfer();
+                transaction = cleverBankTransfer();
             case 4:
-                otherBankTransfer();
+                transaction = otherBankTransfer();
+            default:
+                printNoSuchOption();
+                options();
         }
+        printCheck(transaction);
     }
 
-    public void withdrawMoney(){
+    public Transaction withdrawMoney(){
         BigDecimal value = getOperationValue();
         dao.withdraw(currentUserAccount, value);
+        return new Transaction(currentUserAccount, null, value, "Снятие со счета");
     }
 
-    public void addMoney(){
+    public Transaction addMoney(){
         BigDecimal value = getOperationValue();
         dao.add(currentUserAccount, value);
+        return new Transaction(currentUserAccount, null, value, "Пополнение счета");
     }
 
-    public void cleverBankTransfer(){
+    public Transaction cleverBankTransfer(){
         BigDecimal value = getOperationValue();
         Account transferUserAccount = getCleverBankTransfer();
         String thisBank = "Clever-bank";
         transferUserAccount.setBank(new Bank(thisBank));
-        Transaction transaction = new Transaction(currentUserAccount, transferUserAccount, value);
+        Transaction transaction = new Transaction(currentUserAccount, transferUserAccount, value, "Перевод");
         dao.Transfer(transaction);
+        return transaction;
     }
 
-    public void otherBankTransfer(){
+    public Transaction otherBankTransfer(){
         BigDecimal value = getOperationValue();
         String bankName = getOtherBankName();
         Account transferUserAccount = getOtherBankTransfer();
         transferUserAccount.setBank(new Bank(bankName));
-        Transaction transaction = new Transaction(currentUserAccount, transferUserAccount, value);
+        Transaction transaction = new Transaction(currentUserAccount, transferUserAccount, value, "Перевод");
         dao.Transfer(transaction);
+        return transaction;
     }
 
     public BigDecimal getOperationValue(){
@@ -117,19 +128,45 @@ public class Controller {
         return new Account(scanner.nextInt());
     }
 
-    public void monthCheck() throws InterruptedException {
-        lock.lock();
-        flag = true;
-        while(flag){
-            condition.wait(30000);
-            if(flag){
-
+    public void monthCheck(){
+        try {
+            lock.lock();
+            flag = true;
+            while(flag){
+                condition.wait(30000);
+                if(flag){
+                    if(LocalDate.now().getDayOfMonth() == LocalDate.now().lengthOfMonth() &&
+                            LocalTime.now().getHour() == 23 && LocalTime.now().getMinute() == 30){
+                        dao.monthAdd();
+                    }
+                }
             }
+            lock.unlock();
+        }catch (InterruptedException e){
+
         }
-        lock.unlock();
     }
 
     public void throwMoneyException(){
         view.printMoneyException();
+    }
+
+    public void printCheck(Transaction transaction){
+        view.printCheck(transaction);
+    }
+
+    public void printNoSuchOption(){
+        view.printNoSuchOption();
+    }
+
+    public void start(){
+        view = new View();
+        printHello();
+        //checkUser();
+    }
+
+    @Override
+    public void run() {
+        monthCheck();
     }
 }
