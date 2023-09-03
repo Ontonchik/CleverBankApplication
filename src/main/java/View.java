@@ -48,7 +48,7 @@ public class View {
     }
 
     public void printNoSuchOption(){
-        System.out.println("Такой опции нет, введите число от 1 до 4");
+        System.out.println("Такой опции нет, попробуйте еще раз");
     }
 
     public void printCheck(Transaction transaction, HashMap<String, Object> map, Yaml yaml){
@@ -83,5 +83,10 @@ public class View {
             System.out.println("Ошибка записи в файл");
             System.out.println(e.getMessage());
         }
+    }
+
+    public void printContinue(){
+        System.out.println("Операция проведена успешно, желаете продолжить?");
+        System.out.println("1 - да, 2 - нет");
     }
 }

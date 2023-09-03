@@ -4,5 +4,6 @@ public class Main {
         Thread thread = new Thread(controller);
         thread.start();
         controller.begin();
+        thread.interrupt();
     }
 }

@@ -12,6 +12,10 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * Controller class is used as part of the mvc pattern and is a program operation controller
+ * @author Anton Chigir
+ */
 public class Controller implements Runnable {
     Yaml yaml = new Yaml();
     Scanner scanner = new Scanner(System.in);
@@ -23,14 +27,26 @@ public class Controller implements Runnable {
     View view;
     Dao dao;
 
+
+    /**
+     * calls function from class View that print program's start message
+     */
     public void printHello(){
         view.printHello();
     }
 
+    /**
+     * get username from console
+     * @return String username of current program user
+     */
     public String getUsername(){
         return scanner.nextLine();
     }
 
+    /**
+     * Character-by-character reads from the console the password from the account of the current Clever-bank user
+     * @return password of Clever-bank account from current user
+     */
     public char[] getPassword() {
         char[] password = new char[MAX_PASSWORD_LENGTH];
         int i = 0;
@@ -45,17 +61,23 @@ public class Controller implements Runnable {
         return password;
     }
 
+    /**
+     * Accesses the dao class to verify user data
+     */
     public void checkUser(){
         String username = getUsername();
         char[] password = getPassword();
         if(!dao.checkAccess(currentUserAccount, username, password)){
             Arrays.fill(password, ' ');
+            currentUserAccount.setUser(new User(username));
             return;
         }
-        currentUserAccount.setUser(new User(username));
         Arrays.fill(password, ' ');
     }
 
+    /**
+     * Responsible for the further behavior of the program after the user selects the desired operation
+     */
     public void menu(){
         view.printSwitch();
         int option = scanner.nextInt();
@@ -78,6 +100,9 @@ public class Controller implements Runnable {
             printCheck(transaction, map);
         } catch (IOException e){
             System.out.println(e.getMessage());
+        }
+        if(getLikeToContinue()){
+            menu();
         }
     }
 
@@ -137,6 +162,22 @@ public class Controller implements Runnable {
 
     public Account getOtherBankTransfer(){
         return new Account(scanner.nextInt());
+    }
+
+    public boolean getLikeToContinue(){
+        switch (scanner.nextInt()){
+            case 1:
+                return true;
+            case 2:
+                return false;
+            default:
+                printNoSuchOption();
+                return getLikeToContinue();
+        }
+    }
+
+    public void printContinueAsk(){
+        view.printContinue();
     }
 
     public void monthCheck(BigDecimal val){
