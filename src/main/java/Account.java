@@ -2,7 +2,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
+/**
+ * Implementation of user account in bank
+ */
 @Getter
 @Setter
 @NoArgsConstructor
