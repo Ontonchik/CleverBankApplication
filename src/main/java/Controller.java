@@ -101,6 +101,7 @@ public class Controller implements Runnable {
         } catch (IOException e){
             System.out.println(e.getMessage());
         }
+        printContinueAsk();
         if(getLikeToContinue()){
             menu();
         }
