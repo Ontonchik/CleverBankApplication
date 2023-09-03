@@ -1,5 +1,6 @@
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -48,14 +49,14 @@ public class View {
     }
 
     public void printNoSuchOption(){
-        System.out.println("Такой опции нет, введите число от 1 до 4");
+        System.out.println("Такой опции нет, попробуйте еще раз");
     }
 
     public void printCheck(Transaction transaction, HashMap<String, Object> map, Yaml yaml){
         try {
-            PrintWriter wr = new PrintWriter(new FileWriter("output.txt"));
-            PrintWriter writer = new PrintWriter("src/main/resources/config.yml");
             int checkNumber = Integer.parseInt(map.get("checkNumber").toString());
+            PrintWriter wr = new PrintWriter(new FileWriter("check/output" + checkNumber + ".txt"));
+            PrintWriter writer = new PrintWriter("src/main/resources/config.yml");
             map.replace("checkNumber", checkNumber + 1);
             yaml.dump(map, writer);
             wr.println("------------------------------------");
@@ -83,5 +84,10 @@ public class View {
             System.out.println("Ошибка записи в файл");
             System.out.println(e.getMessage());
         }
+    }
+
+    public void printContinue(){
+        System.out.println("Операция проведена успешно, желаете продолжить?");
+        System.out.println("1 - да, 2 - нет");
     }
 }
