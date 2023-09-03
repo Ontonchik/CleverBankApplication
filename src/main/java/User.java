@@ -9,5 +9,5 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class User {
-    private String username;
+    private String mUsername;
 }

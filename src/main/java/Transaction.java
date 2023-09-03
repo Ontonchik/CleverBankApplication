@@ -7,8 +7,8 @@ import java.math.BigDecimal;
  */
 @Data
 public class Transaction {
-    private final Account currentUserAccount;
-    private final Account transferUserAccount;
-    private final BigDecimal value;
-    private final String transactionType;
+    private final Account mCurrentUserAccount;
+    private final Account mTransferUserAccount;
+    private final BigDecimal mValue;
+    private final String mTransactionType;
 }

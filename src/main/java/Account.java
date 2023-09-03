@@ -9,17 +9,17 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class Account {
-    private int accountId;
-    private User user;
-    private char[] password;
+    private int mAccountId;
+    private User mUser;
+    private char[] mPassword;
     Bank bank;
 
     public Account(int account_Id){
-        accountId = account_Id;
+        mAccountId = account_Id;
     }
 
     public Account(int account_Id, Bank accountBank){
-        accountId = account_Id;
+        mAccountId = account_Id;
         bank = accountBank;
     }
 }

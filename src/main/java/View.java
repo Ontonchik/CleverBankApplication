@@ -95,21 +95,21 @@ public class View {
             wr.println("|          Банковский чек          |");
             wr.println("| Чек:                           " + checkNumber + " |");
             wr.println("| " + LocalDate.now() + "              " + LocalTime.now().truncatedTo(ChronoUnit.SECONDS) + " |");
-            wr.println("| Тип транзакции:          " + transaction.getTransactionType() + " |");
-            switch (transaction.getTransactionType()){
+            wr.println("| Тип транзакции:          " + transaction.getMTransactionType() + " |");
+            switch (transaction.getMTransactionType()){
                 case "Перевод":
-                    wr.println("| Банк отправителя     " + transaction.getCurrentUserAccount().getBank().getName() + " |");
-                    wr.println("| Банк получателя       " + transaction.getTransferUserAccount().getBank().getName() + " |");
-                    wr.println("| Счет отправителя             " + transaction.getCurrentUserAccount().getAccountId() + " |");
-                    wr.println("| Счет получателя              " + transaction.getTransferUserAccount().getAccountId() + " |");
+                    wr.println("| Банк отправителя     " + transaction.getMCurrentUserAccount().getBank().getMName() + " |");
+                    wr.println("| Банк получателя       " + transaction.getMTransferUserAccount().getBank().getMName() + " |");
+                    wr.println("| Счет отправителя             " + transaction.getMCurrentUserAccount().getMAccountId() + " |");
+                    wr.println("| Счет получателя              " + transaction.getMTransferUserAccount().getMAccountId() + " |");
                 case "Пополнение счета":
-                    wr.println("| Банк пользователя    " + transaction.getCurrentUserAccount().getBank().getName() + " |");
-                    wr.println("| Счет пользователя            " + transaction.getCurrentUserAccount().getAccountId() + " |");
+                    wr.println("| Банк пользователя    " + transaction.getMCurrentUserAccount().getBank().getMName() + " |");
+                    wr.println("| Счет пользователя            " + transaction.getMCurrentUserAccount().getMAccountId() + " |");
                 case "Снятие со счета":
-                    wr.println("| Банк пользователя    " + transaction.getCurrentUserAccount().getBank().getName() + " |");
-                    wr.println("| Счет пользователя            " + transaction.getCurrentUserAccount().getAccountId() + " |");
+                    wr.println("| Банк пользователя    " + transaction.getMCurrentUserAccount().getBank().getMName() + " |");
+                    wr.println("| Счет пользователя            " + transaction.getMCurrentUserAccount().getMAccountId() + " |");
             }
-            wr.println("| Сумма:                       " + transaction.getValue() + " |");
+            wr.println("| Сумма:                       " + transaction.getMValue() + " |");
             wr.println("------------------------------------");
             wr.close();
         } catch (IOException e){

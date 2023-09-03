@@ -73,7 +73,7 @@ public class Dao {
             ResultSet resultSet = statement.executeQuery();
             boolean isCorrectPassword = resultSet.next() && Arrays.equals(resultSet.getString("password").toCharArray(), password);
             if(isCorrectPassword){
-                currentUserAccount.setAccountId(resultSet.getInt("account_id"));
+                currentUserAccount.setMAccountId(resultSet.getInt("account_id"));
                 return true;
             }
         } catch (SQLException e){
@@ -96,7 +96,7 @@ public class Dao {
             if(enoughMoneyCheck(currentUserAccount, value)) {
                 PreparedStatement statement = connection.prepareStatement("Update newtable set cash = cash - ?  where account_id = ? and bank = Clever-bank;");
                 statement.setBigDecimal(1, value);
-                statement.setInt(2, currentUserAccount.getAccountId());
+                statement.setInt(2, currentUserAccount.getMAccountId());
                 statement.executeQuery();
             }
             else{
@@ -120,7 +120,7 @@ public class Dao {
         try {
             PreparedStatement statement = connection.prepareStatement("Update newtable set cash = cash + ?  where account_id = ? and bank = Clever-bank;");
             statement.setBigDecimal(1, value);
-            statement.setInt(2, currentUserAccount.getAccountId());
+            statement.setInt(2, currentUserAccount.getMAccountId());
             statement.executeQuery();
         }catch (SQLException e){
             sqlExceptionHandler(e);
@@ -141,12 +141,12 @@ public class Dao {
                 PreparedStatement statement = connection.prepareStatement("Update newtable set cash = cash" +
                         " - ?  where account_id = ? and bank = Clever-bank, cash = cash + ?  where account_id = ? " +
                         "and bank = ?;");
-                BigDecimal value = transaction.getValue();
+                BigDecimal value = transaction.getMValue();
                 statement.setBigDecimal(1, value);
-                statement.setInt(2, transaction.getCurrentUserAccount().getAccountId());
+                statement.setInt(2, transaction.getMCurrentUserAccount().getMAccountId());
                 statement.setBigDecimal(3, value);
-                statement.setInt(4, transaction.getTransferUserAccount().getAccountId());
-                statement.setString(5, transaction.getTransferUserAccount().bank.getName());
+                statement.setInt(4, transaction.getMTransferUserAccount().getMAccountId());
+                statement.setString(5, transaction.getMTransferUserAccount().bank.getMName());
                 statement.executeQuery();
                 connection.commit();
             }
@@ -170,7 +170,7 @@ public class Dao {
         lock.lock();
         connection.setAutoCommit(false);
         PreparedStatement statement = connection.prepareStatement("Select cash from newtable where account_id = ?;");
-        statement.setInt(1, currentUserAccount.getAccountId());
+        statement.setInt(1, currentUserAccount.getMAccountId());
         ResultSet resultSet = statement.executeQuery();
         lock.unlock();
         return resultSet.next() && resultSet.getBigDecimal("cash").compareTo(value) >= 0;
@@ -184,13 +184,13 @@ public class Dao {
      */
     public boolean isValidTransaction(Transaction transaction) throws SQLException {
         lock.lock();
-        if(enoughMoneyCheck(transaction.getCurrentUserAccount(), transaction.getValue())){
+        if(enoughMoneyCheck(transaction.getMCurrentUserAccount(), transaction.getMValue())){
             PreparedStatement statement = connection.prepareStatement("Select * from newtable where account_id = ? and bank = ?;");
-            statement.setInt(1, transaction.getTransferUserAccount().getAccountId());
-            statement.setString(2, transaction.getTransferUserAccount().getBank().getName());
+            statement.setInt(1, transaction.getMTransferUserAccount().getMAccountId());
+            statement.setString(2, transaction.getMTransferUserAccount().getBank().getMName());
             ResultSet resultSet = statement.executeQuery();
             lock.unlock();
-            return resultSet.next() && resultSet.getString("bank").equals(transaction.getTransferUserAccount().bank.getName());
+            return resultSet.next() && resultSet.getString("bank").equals(transaction.getMTransferUserAccount().bank.getMName());
         }
         lock.unlock();
         return false;

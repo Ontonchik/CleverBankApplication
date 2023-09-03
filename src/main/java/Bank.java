@@ -6,5 +6,5 @@ import lombok.Data;
  */
 @Data
 public class Bank {
-    private final String name;
+    private final String mName;
 }

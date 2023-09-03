@@ -80,7 +80,7 @@ public class Controller implements Runnable {
         char[] password = getPassword();
         if(!dao.checkAccess(currentUserAccount, username, password)){
             Arrays.fill(password, ' ');
-            currentUserAccount.setUser(new User(username));
+            currentUserAccount.setMUser(new User(username));
             return;
         }
         Arrays.fill(password, ' ');
