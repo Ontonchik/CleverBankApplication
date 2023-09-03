@@ -1,11 +1,6 @@
-import org.yaml.snakeyaml.Yaml;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalTime;
-import java.util.HashMap;
-
+/**
+ * Main class. Starts application
+ */
 public class Main {
     public static void main(String[] args) {
         Controller controller = new Controller();

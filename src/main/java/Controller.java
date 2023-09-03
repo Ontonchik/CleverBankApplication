@@ -18,12 +18,24 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class Controller implements Runnable {
     Yaml yaml = new Yaml();
+    /**
+     * scanner that get all info from user
+     */
     Scanner scanner = new Scanner(System.in);
+    /**
+     * flag that tell 2-nd thread to stop working after 1-st ends all needed functions
+     */
     boolean flag;
+    /**
+     * lock to make db requests synchronized
+     */
     Lock lock = new ReentrantLock();
     Condition condition = lock.newCondition();
     int MAX_PASSWORD_LENGTH = 40;
     Account currentUserAccount = new Account();
+    /**
+     * objects of classes view and dao for mvc and dao patterns correct work
+     */
     View view;
     Dao dao;
 
@@ -271,10 +283,11 @@ public class Controller implements Runnable {
      */
     public void begin(){
         view = new View();
-        dao = new Dao(lock);
+        dao = new Dao(lock, this);
         printHello();
         checkUser();
         menu();
+        flag = false;
         dao.destroy();
     }
 
