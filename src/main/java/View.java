@@ -141,4 +141,8 @@ public class View {
         System.out.println("Ошибка при обращении в базу данных. Подробнее об ошибке:");
         System.out.println(e.getMessage());
     }
+
+    public void printInvalidData(){
+        System.out.println("Неверно введены данные, попробуйте еще раз");
+    }
 }

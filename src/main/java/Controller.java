@@ -61,9 +61,8 @@ public class Controller implements Runnable {
     public char[] getPassword() {
         char[] password = new char[MAX_PASSWORD_LENGTH];
         try {
-            if (scanner.hasNext()) {
-                password = scanner.next().toCharArray();
-            }
+            password = scanner.next().toCharArray();
+            scanner.nextLine();
         } catch (ArrayIndexOutOfBoundsException e){
             view.printPasswordException();
         }
@@ -78,7 +77,8 @@ public class Controller implements Runnable {
         char[] password = getPassword();
         if(!dao.checkAccess(currentUserAccount, username, password)){
             Arrays.fill(password, ' ');
-            return;
+            view.printInvalidData();
+            checkUser();
         }
         currentUserAccount.setMUser(new User(username));
         Arrays.fill(password, ' ');
@@ -94,15 +94,20 @@ public class Controller implements Runnable {
         switch (option){
             case 1:
                 transaction = withdrawMoney();
+                break;
             case 2:
                 transaction = addMoney();
+                break;
             case 3:
                 transaction = cleverBankTransfer();
+                break;
             case 4:
                 transaction = otherBankTransfer();
+                break;
             default:
                 printNoSuchOption();
                 menu();
+                break;
         }
         try {
             HashMap<String, Object> map = yaml.load(new FileInputStream("src/main/resources/config.yml"));
@@ -194,6 +199,7 @@ public class Controller implements Runnable {
      * @return String other bank name
      */
     public String getOtherBankName(){
+        scanner.nextLine();
         view.printOtherBankTransfer();
         return scanner.nextLine();
     }

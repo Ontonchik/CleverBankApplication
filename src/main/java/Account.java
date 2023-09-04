@@ -1,5 +1,4 @@
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -7,7 +6,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@NoArgsConstructor
 public class Account {
     private int mAccountId;
     private User mUser;
@@ -21,5 +19,9 @@ public class Account {
     public Account(int account_Id, Bank accountBank){
         mAccountId = account_Id;
         bank = accountBank;
+    }
+
+    public Account() {
+        bank = new Bank("Clever-bank");
     }
 }

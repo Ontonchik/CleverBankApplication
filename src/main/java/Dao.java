@@ -93,15 +93,18 @@ public class Dao {
     public void withdraw(Account currentUserAccount, BigDecimal value){
         lock.lock();
         try {
+            connection.setAutoCommit(false);
             if(enoughMoneyCheck(currentUserAccount, value)) {
-                PreparedStatement statement = connection.prepareStatement("Update newtable set cash = cash - ?  where account_id = ? and bank = Clever-bank;");
+                PreparedStatement statement = connection.prepareStatement("Update newtable set cash = cash - ?  where id = ? and bank_name = 'Clever-bank';");
                 statement.setBigDecimal(1, value);
                 statement.setInt(2, currentUserAccount.getMAccountId());
-                statement.executeQuery();
+                statement.executeUpdate();
             }
             else{
                 printNoMoneyException();
             }
+            connection.commit();
+            connection.setAutoCommit(true);
         }catch (SQLException e){
             sqlExceptionHandler(e);
         }
@@ -118,10 +121,13 @@ public class Dao {
     public void add(Account currentUserAccount, BigDecimal value){
         lock.lock();
         try {
-            PreparedStatement statement = connection.prepareStatement("Update newtable set cash = cash + ?  where account_id = ? and bank = Clever-bank;");
+            connection.setAutoCommit(false);
+            PreparedStatement statement = connection.prepareStatement("Update newtable set cash = cash + ?  where id = ? and bank_name = 'Clever-bank';");
             statement.setBigDecimal(1, value);
             statement.setInt(2, currentUserAccount.getMAccountId());
-            statement.executeQuery();
+            statement.executeUpdate();
+            connection.commit();
+            connection.setAutoCommit(true);
         }catch (SQLException e){
             sqlExceptionHandler(e);
         }
@@ -137,17 +143,20 @@ public class Dao {
     public void Transfer(Transaction transaction){
         lock.lock();
         try {
+            connection.setAutoCommit(false);
             if(isValidTransaction(transaction)) {
-                PreparedStatement statement = connection.prepareStatement("Update newtable set cash = cash" +
-                        " - ?  where account_id = ? and bank = Clever-bank, cash = cash + ?  where account_id = ? " +
-                        "and bank = ?;");
+                PreparedStatement statement1 = connection.prepareStatement("Update newtable set cash = cash" +
+                        " - ?  where id = ? and bank_name = 'Clever-bank';");
                 BigDecimal value = transaction.getMValue();
-                statement.setBigDecimal(1, value);
-                statement.setInt(2, transaction.getMCurrentUserAccount().getMAccountId());
-                statement.setBigDecimal(3, value);
-                statement.setInt(4, transaction.getMTransferUserAccount().getMAccountId());
-                statement.setString(5, transaction.getMTransferUserAccount().bank.getMName());
-                statement.executeQuery();
+                statement1.setBigDecimal(1, value);
+                statement1.setInt(2, transaction.getMCurrentUserAccount().getMAccountId());
+                PreparedStatement statement2 = connection.prepareStatement("Update newtable set cash = cash + ?  where id = ? " +
+                        "and bank_name = ?;");
+                statement2.setBigDecimal(1, value);
+                statement2.setInt(2, transaction.getMTransferUserAccount().getMAccountId());
+                statement2.setString(3, transaction.getMTransferUserAccount().bank.getMName());
+                statement1.executeUpdate();
+                statement2.executeUpdate();
                 connection.commit();
             }
             connection.setAutoCommit(true);
@@ -169,7 +178,7 @@ public class Dao {
     public boolean enoughMoneyCheck(Account currentUserAccount, BigDecimal value) throws SQLException {
         lock.lock();
         connection.setAutoCommit(false);
-        PreparedStatement statement = connection.prepareStatement("Select cash from newtable where account_id = ?;");
+        PreparedStatement statement = connection.prepareStatement("Select cash from newtable where id = ?;");
         statement.setInt(1, currentUserAccount.getMAccountId());
         ResultSet resultSet = statement.executeQuery();
         lock.unlock();
@@ -185,12 +194,12 @@ public class Dao {
     public boolean isValidTransaction(Transaction transaction) throws SQLException {
         lock.lock();
         if(enoughMoneyCheck(transaction.getMCurrentUserAccount(), transaction.getMValue())){
-            PreparedStatement statement = connection.prepareStatement("Select * from newtable where account_id = ? and bank = ?;");
+            PreparedStatement statement = connection.prepareStatement("Select * from newtable where id = ? and bank_name = ?;");
             statement.setInt(1, transaction.getMTransferUserAccount().getMAccountId());
             statement.setString(2, transaction.getMTransferUserAccount().getBank().getMName());
             ResultSet resultSet = statement.executeQuery();
             lock.unlock();
-            return resultSet.next() && resultSet.getString("bank").equals(transaction.getMTransferUserAccount().bank.getMName());
+            return resultSet.next() && resultSet.getString("bank_name").equals(transaction.getMTransferUserAccount().bank.getMName());
         }
         lock.unlock();
         return false;
@@ -203,9 +212,12 @@ public class Dao {
     public void monthAdd(BigDecimal monthValue){
         lock.lock();
         try {
-            PreparedStatement statement = connection.prepareStatement("Update newtable set cash = cash * ?  where bank = Clever-bank;");
+            connection.setAutoCommit(false);
+            PreparedStatement statement = connection.prepareStatement("Update newtable set cash = cash * ?  where bank_name = 'Clever-bank';");
             statement.setBigDecimal(1, monthValue);
-            statement.executeQuery();
+            statement.executeUpdate();
+            connection.commit();
+            connection.setAutoCommit(true);
         }catch (SQLException e){
             sqlExceptionHandler(e);
         }
