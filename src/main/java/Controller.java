@@ -60,11 +60,9 @@ public class Controller implements Runnable {
      */
     public char[] getPassword() {
         char[] password = new char[MAX_PASSWORD_LENGTH];
-        int i = 0;
         try {
-            while (scanner.hasNext()) {
-                password[i] = scanner.next().charAt(0);
-                i++;
+            if (scanner.hasNext()) {
+                password = scanner.next().toCharArray();
             }
         } catch (ArrayIndexOutOfBoundsException e){
             view.printPasswordException();
@@ -80,9 +78,9 @@ public class Controller implements Runnable {
         char[] password = getPassword();
         if(!dao.checkAccess(currentUserAccount, username, password)){
             Arrays.fill(password, ' ');
-            currentUserAccount.setMUser(new User(username));
             return;
         }
+        currentUserAccount.setMUser(new User(username));
         Arrays.fill(password, ' ');
     }
 
@@ -237,19 +235,17 @@ public class Controller implements Runnable {
      */
     public void monthCheck(BigDecimal val){
         try {
-            lock.lock();
             flag = true;
             while(flag){
-                condition.wait(30000);
+                Thread.sleep(30000);
                 if(flag){
                     if(LocalDate.now().getDayOfMonth() == LocalDate.now().lengthOfMonth() &&
                             LocalTime.now().getHour() == 23 && LocalTime.now().getMinute() == 30){
                         dao.monthAdd(val);
-                        condition.wait(60000);
+                        Thread.sleep(60000);
                     }
                 }
             }
-            lock.unlock();
         }catch (InterruptedException e){
             System.out.println(e.getMessage());
         }

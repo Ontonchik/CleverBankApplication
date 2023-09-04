@@ -68,12 +68,12 @@ public class Dao {
     public boolean checkAccess(Account currentUserAccount, String username, char[] password) {
         lock.lock();
         try {
-            PreparedStatement statement = connection.prepareStatement("Select password, account_id from newtable where username = ?;");
+            PreparedStatement statement = connection.prepareStatement("Select password, id from newtable where username = ?;");
             statement.setString(1, username);
             ResultSet resultSet = statement.executeQuery();
             boolean isCorrectPassword = resultSet.next() && Arrays.equals(resultSet.getString("password").toCharArray(), password);
             if(isCorrectPassword){
-                currentUserAccount.setMAccountId(resultSet.getInt("account_id"));
+                currentUserAccount.setMAccountId(resultSet.getInt("id"));
                 return true;
             }
         } catch (SQLException e){
